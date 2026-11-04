@@ -342,3 +342,12 @@ Unconfirmed native admissions whose cleanup close fails remain cleanup candidate
 until closure is confirmed. Stale candidates do not consume the admission retry,
 and eviction skips sessions whose runtime lease is still settling. Client-only
 `cache_control` markers do not change the replay history fingerprint.
+
+Worker completion metadata may include `matched_stop`, the exact string removed
+from generated text. Token EOS does not set this field. Tool adapters use it to
+distinguish request-stop truncation from malformed completed model output.
+
+Tool-definition changes are rendered into the next full prompt and checked by the
+native prefix comparison. They do not invalidate an unchanged historical assistant
+echo: stored token IDs still describe that past output, while changed prompt
+prefixes require fresh prefill.
