@@ -302,3 +302,20 @@ The compatibility dialect changes usage placement and overflow formatting. Commo
 validation, model context metadata, and legal SSE keepalives apply in both modes.
 `--streaming-preflight-timeout` defaults to 1 second; errors after response headers
 are sent are reported as SSE error events.
+
+Tool validation accepts JSON Schema Draft 7, 2019-09, and 2020-12 (the default),
+including root `$id` and local fragment references. External references, nested
+schema identifiers/dialect changes, dynamic references, and more than 1023
+coercion alternatives are rejected before generation. Disabled tools are not
+validated. Validators are compiled once per request and never fetch schemas.
+
+ATEM tool intent must start a line outside Markdown code or immediately follow a
+tool recipient header. User-directed examples and quoted markers remain content.
+A length-truncated invocation suppresses the entire incomplete call set and ends
+with `finish_reason=length`; malformed completed calls still return
+`invalid_tool_output`. Streaming may already have delivered reasoning before that
+error. Tool calls are emitted only after the whole call set passes validation.
+
+Empty reasoning options and `enabled=true` are no-ops. `effort` accepts low,
+medium, or high, and `exclude` controls response visibility. Disabling reasoning
+generation or unsupported reasoning keys returns an explicit parameter error.
