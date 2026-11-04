@@ -269,6 +269,7 @@ class MuseGlimmerServingChat(ServingChat):
         if req.session_id is not None:
             self._validate_session_id(req.session_id)
 
+        history_req = req
         req, image_segment = _normalize_image_request(req, self._max_image_bytes)
         template_tools = None if req.tool_choice == "none" else req.tools
         template_kwargs = dict(req.chat_template_kwargs or {})
@@ -282,6 +283,7 @@ class MuseGlimmerServingChat(ServingChat):
             rendered_prompt=prompt,
             tools=template_tools,
             template_kwargs=template_kwargs,
+            history_messages=history_req.messages,
         )
         prompt_input = self._with_image(prompt_input, image_segment)
         if self._max_context:
@@ -299,7 +301,7 @@ class MuseGlimmerServingChat(ServingChat):
             template_kwargs, tools=template_tools
         )
         return await self._create_response(
-            req, prompt_input, options, preamble, gen_stops, lease
+            history_req, prompt_input, options, preamble, gen_stops, lease
         )
 
 

@@ -107,8 +107,9 @@ currently remain buffered.
 
 The launcher waits at most one second for initial generation readiness before
 returning streaming headers. Idle streams send SSE keepalive comments every 15
-seconds. Admission errors detected before headers retain their HTTP status; late
-errors are delivered as SSE errors. Keepalives indicate a live connection, not
+seconds. Admission errors detected before headers retain their HTTP status; later
+capacity rejection before any raw model output can evict an idle session and retry,
+including after headers. Other late errors are delivered as SSE errors. Keepalives indicate a live connection, not
 measured prefill progress.
 
 ### OpenRouter compatibility
@@ -168,6 +169,14 @@ apply. Text/image prefix snapshots are opt-in via `--prefix-cache-entries`
 
 ## Session Behavior
 
+- Named sessions persist by default. `--evict-idle-sessions` allows the server to
+  close the least recently used idle session on capacity exhaustion, clearing
+  its transcript cache as well. Active requests and queued users of a session are
+  protected. Resubmitting an evicted session with full history recreates it.
+  If all slots are active, capacity errors still apply.
+- Generated-token replay is bound to preceding history as well as the assistant
+  response. Compaction or edited earlier messages invalidate affected records,
+  preventing an identical visible answer from restoring another turn's reasoning.
 - Text and image prompts use the shared prefix-reuse path. Image rows count as
   decoder positions; matching uses token IDs and an image-content digest with
   content-relative row offsets, not patch token IDs alone.
